@@ -1,1 +1,90 @@
+What is Idempotency in Ansible?
+Idempotent tasks produce the same result no matter how many times you run them.
+
+Ansible is designed to be idempotent by default — most core modules (like yum, copy, file, service) will not make changes unless needed.
+
+- name: Install Apache idempotently
+  hosts: web
+  become: true
+  tasks:
+    - name: Install httpd package
+      yum:
+        name: httpd
+        state: present
+
+    - name: Start and enable Apache service
+      service:
+        name: httpd
+        state: started
+        enabled: true
+
+What Happens?
+If httpd is already installed and running, no changes are made.
+Running this multiple times = no side effects.
+Safe and predictable.
+=============================================================================================================
+
+Non-Idempotent Playbook Example
+
+- name: Non-idempotent actions example
+  hosts: web
+  become: true
+  tasks:
+    - name: Always create a new timestamp file
+      shell: date >> /tmp/timestamp.txt
+
+What Happens?
+Every run appends a new line to the file.
+
+Output: TASK [Append current date to file] => changed: [web]
+
+Causes a change every time you run the playbook.
+Not idempotent — system changes on every execution.
+=============================================================================================================
+
+Make Non-Idempotent Task Idempotent (Improved Example)
+
+- name: Run setup script only once
+  hosts: web
+  become: true
+  tasks:
+    - name: Run script if marker file not found
+      shell: /opt/scripts/setup.sh
+      args:
+        creates: /opt/scripts/.setup_done
+
+This runs the script only if the marker file is missing.
+
+Output:
+First run: changed
+Next runs: ok (no changes)
+
+Prevents re-running the same command → Idempotent-like behavior
+===========================================================================================================
+
+Example: Fully Idempotent Playbook Using copy
+
+- name: Copy configuration file in an idempotent way
+  hosts: all
+  become: true
+  tasks:
+    - name: Copy nginx.conf to remote system
+      copy:
+        src: files/nginx.conf
+        dest: /etc/nginx/nginx.conf
+        owner: root
+        group: root
+        mode: '0644'
+        backup: yes
+
+ If the file is already the same, Ansible will not change it → idempotent.
+
+Output on First Run:
+TASK [Copy nginx.conf to remote system] => changed: [host]
+
+Output on Second Run (No changes in file):
+TASK [Copy nginx.conf to remote system] => ok: [host]
+
+
+
 
