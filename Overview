@@ -1,0 +1,33 @@
+Ansible is an open-source automation tool used for:
+
+Configuration management
+Application deployment
+Task automation
+IT orchestration
+
+It allows you to manage servers, networks, cloud, and containers easily — without installing any agent on the managed machines.
+
+Key Features Description:
+
+Agentless	No software/agent required on client nodes. Uses SSH or WinRM.
+YAML-based	Playbooks written in simple YAML — human-readable.
+Idempotent	Running a task multiple times won’t cause repeated changes.
+Cross-platform	Works on Linux, Unix, Windows, cloud, containers, etc.
+Scalable	Manage a few or thousands of servers with ease.
+
+Common Ansible Use Cases:
+
+Provisioning: Setup virtual machines, cloud infra (e.g., AWS EC2, Azure).
+Configuration Management: Install packages, manage files, users, services.
+Application Deployment: Automate code deployment (e.g., Java, Python apps).
+Orchestration: Coordinate multiple servers and services in sequence.
+Security Automation: Apply patches, compliance settings.
+
+How Ansible Works:
+
+Inventory file → defines the list of target hosts (like a list of servers).
+Playbooks → YAML files describing tasks and configurations.
+Modules → Reusable units that perform actual actions (e.g., yum, copy, service).
+SSH/WinRM → Connects to systems and runs tasks remotely.
+
+You write code once (in YAML), and Ansible does the rest — over SSH!
