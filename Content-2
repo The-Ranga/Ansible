@@ -1,0 +1,96 @@
+Ansible Vault
+
+Ansible Vault is a feature in Ansible that allows you to encrypt sensitive data such as passwords, API keys, or entire YAML files. This ensures your secrets are not exposed in plaintext in your playbooks or Git repositories.
+
+Why Use Ansible Vault?
+
+Protect credentials, SSH keys, tokens, or confidential data.
+Store secrets safely in version control (e.g., Git).
+Integrates seamlessly with playbooks, vars files, etc.
+
+1.Create a Vault File
+ansible-vault create secret.yml
+
+2.Edit an Encrypted File
+ansible-vault edit secret.yml
+
+3. View Decrypted Content
+ansible-vault view secret.yml
+
+4. Encrypt an Existing File
+ansible-vault encrypt secret.yml
+
+5. Decrypt a File
+ansible-vault decrypt secret.yml
+
+6. Change Vault Password
+ansible-vault rekey secret.yml
+
+>>> Using Vault in Playbooks
+# vault.yml (encrypted)
+db_password: mysecretpassword
+
+>>> Playbook usage:
+- hosts: db
+  vars_files:
+    - vault.yml
+  tasks:
+    - name: Print password (example)
+      debug:
+        msg: "Password is {{ db_password }}"
+
+>>> Run Playbook with Vault Password
+Prompt for password:
+ansible-playbook site.yml --ask-vault-pass
+
+Using password file:
+ansible-playbook site.yml --vault-password-file ~/.vault_pass.txt
+
+>>> Best Practices
+Use separate vault files for different secrets.
+Avoid encrypting entire playbooks—just vars or specific files.
+Use Ansible roles with group_vars and host_vars securely.
+Keep your ~/.vault_pass.txt secure and out of Git.
+
+>>> Creating encrypted variables
+ansible-vault encrypt_string <password_source> '<string_to_encrypt>' --name '<string_name_of_variable>'
+ansible-vault encrypt_string --vault-password-file a_password_file 'foobar' --name 'the_secret'
+
+the_secret: !vault |
+      $ANSIBLE_VAULT;1.1;AES256
+      62313365396662343061393464336163383764373764613633653634306231386433626436623361
+      6134333665353966363534333632666535333761666131620a663537646436643839616531643561
+      63396265333966386166373632626539326166353965363262633030333630313338646335303630
+      3438626666666137650a353638643435666633633964366338633066623234616432373231333331
+      6564
+
+the_secret: This is the variable name.
+!vault: This is a YAML tag indicating the value is encrypted.
+|: Literal block scalar (preserves formatting).
+$ANSIBLE_VAULT;1.1;AES256: Vault format version and encryption method (AES-256).
+The long hex values: Encrypted binary data in hex format.
+
+vault.yml
+- name: Example playbook
+  hosts: localhost
+  vars_files:
+    - vault.yml
+  tasks:
+    - debug:
+        msg: "Decrypted secret is: {{ the_secret }}"
+
+ansible-playbook playbook.yml --ask-vault-pass
+# or
+ansible-playbook playbook.yml --vault-password-file ~/.vault_pass.txt
+
+ansible-vault view vault.yml
+ansible-vault edit vault.yml
+
+>>> Encrypt Only the Value (YAML inline vault)
+ansible-vault encrypt_string 'SuperSecret123' --name 'the_secret'
+
+the_secret: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          ...
+
+
